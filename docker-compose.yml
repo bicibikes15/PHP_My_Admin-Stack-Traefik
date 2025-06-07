@@ -1,0 +1,34 @@
+# ##################################################
+# #                                                #
+# #      STACK DE PHPMYADMIN PARA TRAEFIK          #
+# #         https://digitallfran.co                #
+# #                                                #
+# ##################################################
+
+services:
+  phpmyadmin:
+    ## -----------------https://digitallfran.co--------------------- ##
+    image: phpmyadmin:latest
+    # Para producción, se recomienda fijar una versión, ej: phpmyadmin:5.2-apache
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      # Permite iniciar sesión con cualquier usuario válido en el servidor de destino.
+      # Esto es clave para que los dueños de cada sitio puedan gestionar su propia BD.
+      - PMA_ARBITRARY=1
+      # Apunta al host de la base de datos definido en el .env.
+      - PMA_HOST=${PMA_HOST}
+    networks:
+      - digitallfran_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=digitallfran_net"
+      # --- Router para el Dashboard de phpMyAdmin ---
+      - "traefik.http.routers.phpmyadmin.rule=Host(`${PHPMYADMIN_DOMAIN}`)"
+      - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
+      - "traefik.http.routers.phpmyadmin.tls.certresolver=myresolver"
+      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
+
+networks:
+  digitallfran_net:
+    external: true

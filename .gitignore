@@ -1,0 +1,2 @@
+# Ignorar el archivo de entorno con los secretos reales.
+.env
